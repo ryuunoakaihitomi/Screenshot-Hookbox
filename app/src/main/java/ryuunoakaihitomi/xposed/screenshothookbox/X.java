@@ -46,7 +46,7 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         final String app = lpparam.packageName;
         //loading package...
-        XposedBridge.log( "handleLoadPackage:" + app);
+        Log.d(TAG, "handleLoadPackage:" + app);
         //Disable the security mechanism.(1)Get the first parameter.(flag)
         Class<?> vwclz = XposedHelpers.findClass("android.view.Window", lpparam.classLoader);
         XposedHelpers.findAndHookMethod(vwclz, "setFlags", int.class, int.class,
