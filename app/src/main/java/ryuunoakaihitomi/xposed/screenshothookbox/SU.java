@@ -35,7 +35,7 @@ public class SU extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         //intent.getAction() may return null.
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction()))
-            exec("echo init");
+            exec("echo init_boot");
     }
 
     //UtilTool:check root permission.

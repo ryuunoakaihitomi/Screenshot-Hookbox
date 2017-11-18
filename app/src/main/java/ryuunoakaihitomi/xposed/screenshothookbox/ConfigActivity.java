@@ -16,6 +16,8 @@ public class ConfigActivity extends Activity {
     //Menu
     static final String JPG = "isJPG";
     static final String CAP = "isCAP";
+    //The Man Who Changed China
+    static final String DEL = "XuYiMiao";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +38,8 @@ public class ConfigActivity extends Activity {
                 })
                 .setItems(new String[]{
                         getRightEmoji(JPG) + getString(R.string.save_jpg),
-                        getRightEmoji(CAP) + getString(R.string.use_screencap)}, new DialogInterface.OnClickListener() {
+                        getRightEmoji(CAP) + getString(R.string.use_screencap),
+                        getRightEmoji(DEL) + getString(R.string.delay_1s)}, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
@@ -45,6 +48,9 @@ public class ConfigActivity extends Activity {
                                 break;
                             case 1:
                                 BoolConfigIO.set(CAP, !BoolConfigIO.get(CAP));
+                                break;
+                            case 2:
+                                BoolConfigIO.set(DEL, !BoolConfigIO.get(DEL));
                                 break;
                         }
                         finish();

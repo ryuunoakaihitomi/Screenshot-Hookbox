@@ -31,7 +31,7 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 
     static final String TAG = "Screenshot_Hooklog";
     //RecentTasksList Status
-    private final static String REC = "isRecents";
+    static final String REC = "isRecents";
 
     //_switch will come in handy if I start to hook String.format() method.
     private static boolean _switch;
@@ -46,8 +46,7 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         final String app = lpparam.packageName;
         //loading package...
-        Log.i(TAG, "handleLoadPackage:" + app);
-
+        XposedBridge.log( "handleLoadPackage:" + app);
         //Disable the security mechanism.(1)Get the first parameter.(flag)
         Class<?> vwclz = XposedHelpers.findClass("android.view.Window", lpparam.classLoader);
         XposedHelpers.findAndHookMethod(vwclz, "setFlags", int.class, int.class,

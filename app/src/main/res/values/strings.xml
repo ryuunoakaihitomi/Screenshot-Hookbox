@@ -7,5 +7,6 @@
     <string name="root">I need root!!!</string>
     <string name="config_dialog_title">Configuration Wizard</string>
     <string name="temp_dis">Temporarily disabled Xposed</string>
+    <string name="delay_1s">Delay 1s for QSTile</string>
 
 </resources>

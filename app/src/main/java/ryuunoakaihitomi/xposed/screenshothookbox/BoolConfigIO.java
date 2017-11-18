@@ -11,12 +11,14 @@ import java.io.IOException;
 class BoolConfigIO {
     //Use fixed paths to avoid using context and speeding up execution.In xposed,Environment.getExternalStorageDirectory() will return null.
     private static String path = "/sdcard/Android/data/ryuunoakaihitomi.xposed.screenshothookbox/files/";
+    //if !exists
+    static {
+        SU.exec("mkdir -p " + path);
+    }
 
     //setter and getter.
     static void set(String key, boolean value) {
         File file = new File(path + key);
-        //if !exists
-        SU.exec("mkdir -p " + path);
         if (value)
             try {
                 file.createNewFile();
