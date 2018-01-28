@@ -6,6 +6,7 @@ import android.app.KeyguardManager;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.MediaActionSound;
+import android.os.Environment;
 import android.util.Log;
 import android.view.WindowManager;
 
@@ -39,11 +40,17 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {
         //start.
-        XposedBridge.log("You are using Screenshot Hookbox.\npath:" + startupParam.modulePath);
+        XposedBridge.log("#Screenshot Hookbox");
     }
 
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
+        //Captures exceptions that are caused because the environment is not fully prepared to prevent it from logging on the xpoesd log.
+        try {
+            Environment.getExternalStorageDirectory().getPath();
+        } catch (Exception e) {
+            Log.e(TAG, "Before SystemUI loaded in xposed,I can't get the value of Environment.getExternalStorageDirectory().getPath().");
+        }
         final String app = lpparam.packageName;
         //loading package...
         Log.d(TAG, "handleLoadPackage:" + app);
@@ -161,17 +168,18 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
     //get the object on the top of the screen.(Top Activity + LockScreen + RecentTasksList)
     private String getShotObject() {
         String ret = getLollipopRecentTask();
+        String out;
         if (ret.isEmpty())
             if (BoolConfigIO.get(REC))
-                return "RecentTasksList";
+                out = "RecentTasksList";
             else
-                return "unknown";
+                out = "unknown";
         else if (((KeyguardManager) AndroidAppHelper.currentApplication().getSystemService(Context.KEYGUARD_SERVICE)).inKeyguardRestrictedInputMode())
-            return "LockScreen";
-        else {
-            Log.d(TAG, "getShotObject:" + ret);
-            return ret;
-        }
+            out = "LockScreen";
+        else
+            out = ret;
+        Log.d(TAG, "getShotObject:" + out);
+        return out;
     }
 
     //Get foreground package name,it can work on lollipop or higher without PACKAGE_USAGE_STATS.(reflection.But it could't get the RecentsActivity from SystemUI.System permission needed)

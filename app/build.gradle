@@ -2,13 +2,12 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "26.0.1"
     defaultConfig {
         applicationId "ryuunoakaihitomi.xposed.screenshothookbox"
         minSdkVersion 23
         targetSdkVersion 25
         versionCode 7
-        versionName "[5]"
+        versionName "[6]"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

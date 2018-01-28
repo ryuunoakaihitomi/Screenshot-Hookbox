@@ -1,5 +1,7 @@
 package ryuunoakaihitomi.xposed.screenshothookbox;
 
+import android.os.Environment;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -10,7 +12,8 @@ import java.io.IOException;
 
 class BoolConfigIO {
     //Use fixed paths to avoid using context and speeding up execution.In xposed,Environment.getExternalStorageDirectory() will return null.
-    private static String path = "/sdcard/Android/data/ryuunoakaihitomi.xposed.screenshothookbox/files/";
+    private static String path = Environment.getExternalStorageDirectory().getPath() + "/Android/data/ryuunoakaihitomi.xposed.screenshothookbox/files/";
+
     //if !exists
     static {
         SU.exec("mkdir -p " + path);
