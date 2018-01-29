@@ -6,7 +6,7 @@ android {
         applicationId "ryuunoakaihitomi.xposed.screenshothookbox"
         minSdkVersion 23
         targetSdkVersion 25
-        versionCode 7
+        versionCode 8
         versionName "[6]"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
