@@ -30,14 +30,6 @@ public class SU extends BroadcastReceiver {
         }
     }
 
-    //AutoRun.Initialize the outputstream.
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        //intent.getAction() may return null.
-        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction()))
-            exec("echo init_boot");
-    }
-
     //UtilTool:check root permission.
     static synchronized boolean isRoot() {
         Process process = null;
@@ -61,6 +53,17 @@ public class SU extends BroadcastReceiver {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    //AutoRun.Initialize the outputstream.
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        //intent.getAction() may return null.
+        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+            if (ConfigActivity.isXposedRunning())
+                BoolConfigIO.set(ConfigActivity.CAP, false);
+            exec("echo init_boot");
         }
     }
 }

@@ -19,6 +19,11 @@ public class ConfigActivity extends Activity {
     //The Man Who Changed China
     static final String DEL = "XuYiMiao";
 
+    //Hook entry
+    static boolean isXposedRunning() {
+        return false;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +52,10 @@ public class ConfigActivity extends Activity {
                                 BoolConfigIO.set(JPG, !BoolConfigIO.get(JPG));
                                 break;
                             case 1:
-                                BoolConfigIO.set(CAP, !BoolConfigIO.get(CAP));
+                                if (isXposedRunning())
+                                    Toast.makeText(getApplicationContext(), getString(R.string.xposed), Toast.LENGTH_LONG).show();
+                                else
+                                    BoolConfigIO.set(CAP, !BoolConfigIO.get(CAP));
                                 break;
                             case 2:
                                 BoolConfigIO.set(DEL, !BoolConfigIO.get(DEL));

@@ -3,13 +3,19 @@ package ryuunoakaihitomi.xposed.screenshothookbox;
 import android.app.ActivityManager;
 import android.app.AndroidAppHelper;
 import android.app.KeyguardManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Point;
+import android.media.ExifInterface;
 import android.media.MediaActionSound;
-import android.os.Environment;
+import android.os.Build;
+import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Display;
 import android.view.WindowManager;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -45,12 +51,6 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
-        //Captures exceptions that are caused because the environment is not fully prepared to prevent it from logging on the xpoesd log.
-        try {
-            Environment.getExternalStorageDirectory().getPath();
-        } catch (Exception e) {
-            Log.e(TAG, "Before SystemUI loaded in xposed,I can't get the value of Environment.getExternalStorageDirectory().getPath().");
-        }
         final String app = lpparam.packageName;
         //loading package...
         Log.d(TAG, "handleLoadPackage:" + app);
@@ -81,6 +81,10 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                 }
             }
         });
+        //Check xposed status.
+        if (app.equals("ryuunoakaihitomi.xposed.screenshothookbox")) {
+            XposedHelpers.findAndHookMethod("ryuunoakaihitomi.xposed.screenshothookbox.ConfigActivity", lpparam.classLoader, "isXposedRunning", XC_MethodReplacement.returnConstant(true));
+        }
         //SystemUI is the operator.
         if (app.equals("com.android.systemui")) {
             //Mute during getting screenshot.
@@ -133,6 +137,51 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                     else
                         param.args[0] = Bitmap.CompressFormat.JPEG;
                     Log.d(TAG, "Bitmap.compress");
+                }
+            });
+
+            //Add EXIF in JPEG image.
+            XposedHelpers.findAndHookMethod(ContentValues.class, "put", String.class, String.class, new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    if (param.args[0] == MediaStore.Images.ImageColumns.DATA) {
+                        Log.d(TAG, "MediaStore.Images.ImageColumns.DATA");
+                        if (BoolConfigIO.get(ConfigActivity.JPG) && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                            Log.d(TAG, "mImageFilePath:" + param.args[1]);
+                            final String mImageFilePath = (String) param.args[1];
+                            //Add EXIF
+                            try {
+                                Log.d(TAG, "ExifInterface.setAttribute");
+                                ExifInterface exifInterface = new ExifInterface(mImageFilePath);
+                                exifInterface.setAttribute(ExifInterface.TAG_DATETIME, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(System.currentTimeMillis()));
+                                //Debug: orientation
+                                String orientation = String.valueOf(AndroidAppHelper.currentApplication().getResources().getConfiguration().orientation);
+                                Log.d(TAG, "orientation:" + orientation);
+                                exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, orientation);
+                                //Debug:Width & Length
+                                WindowManager windowManager = (WindowManager) AndroidAppHelper.currentApplication().getSystemService(Context.WINDOW_SERVICE);
+                                Display display = windowManager.getDefaultDisplay();
+                                Point point = new Point();
+                                display.getRealSize(point);
+                                int w = point.x;
+                                int l = point.y;
+                                Log.d(TAG, String.format("getRealSize:%d*%d", w, l));
+                                exifInterface.setAttribute(ExifInterface.TAG_IMAGE_WIDTH, String.valueOf(w));
+                                exifInterface.setAttribute(ExifInterface.TAG_IMAGE_LENGTH, String.valueOf(l));
+                                //Device Info
+                                exifInterface.setAttribute(ExifInterface.TAG_MAKE, Build.MANUFACTURER);
+                                exifInterface.setAttribute(ExifInterface.TAG_MODEL, Build.MODEL);
+                                exifInterface.setAttribute(ExifInterface.TAG_SOFTWARE, Build.DISPLAY);
+                                exifInterface.setAttribute(ExifInterface.TAG_MAKER_NOTE, "getShotObject:" + getShotObject());
+                                //Others
+                                exifInterface.setAttribute(ExifInterface.TAG_ARTIST, "SystemUI");
+                                exifInterface.setAttribute(ExifInterface.TAG_COPYRIGHT, "EXIF:Screenshot Hookbox");
+                                exifInterface.saveAttributes();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                 }
             });
             /**
