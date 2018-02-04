@@ -13,7 +13,7 @@ The xposed module can enhanced screenshot experience.
 5.WEBP filetype
 
 
-And a quick screenshot tile.(Not dependent on xposed.Root needed.Long Click:Save to JPG)
+And a quick screenshot tile.(Not dependent on xposed.Root needed)
 
 
 HookPlace:[here](./app/src/main/java/ryuunoakaihitomi/xposed/screenshothookbox/X.java)
