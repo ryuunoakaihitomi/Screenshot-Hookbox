@@ -11,6 +11,8 @@ The xposed module can enhanced screenshot experience.
 4.0 delay
 <br>
 5.WEBP filetype
+<br>
+6.EXIF(JPEG,Android 7.0+)
 
 
 And a quick screenshot tile.(Not dependent on xposed.Root needed)
