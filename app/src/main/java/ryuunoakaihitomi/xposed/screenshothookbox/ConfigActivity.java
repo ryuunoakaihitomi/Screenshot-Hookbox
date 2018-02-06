@@ -3,6 +3,8 @@ package ryuunoakaihitomi.xposed.screenshothookbox;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -44,7 +46,8 @@ public class ConfigActivity extends Activity {
                 .setItems(new String[]{
                         getRightEmoji(JPG) + getString(R.string.save_jpg),
                         getRightEmoji(CAP) + getString(R.string.use_screencap),
-                        getRightEmoji(DEL) + getString(R.string.delay_1s)}, new DialogInterface.OnClickListener() {
+                        getRightEmoji(DEL) + getString(R.string.delay_1s),
+                        getString(R.string.donate)}, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
@@ -60,6 +63,9 @@ public class ConfigActivity extends Activity {
                             case 2:
                                 BoolConfigIO.set(DEL, !BoolConfigIO.get(DEL));
                                 break;
+                            case 3:
+                                Toast.makeText(getApplicationContext(), getString(R.string.donate_notice), Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://ryuunoakaihitomi.info/donate/")));
                         }
                         finish();
                     }

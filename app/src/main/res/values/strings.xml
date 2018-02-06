@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Screenshot Hookbox</string>
     <string name="tile_label">Screenshot</string>
-    <string name="intro">The xposed module can enhanced screenshot experience.\n1.Cancel security restrictions\n2.Mute\n3.Reformat filename(ms+packagename)\n4.0 delay\n5.WEBP filetype\n\nAnd a quick screenshot tile.(Not dependent on xposed.Root needed.)\nsrc: https://github.com/ryuunoakaihitomi/Screenshot-Hookbox</string>
+    <string name="intro">The xposed module can enhanced screenshot experience.\n1.Cancel security restrictions\n2.Mute\n3.Reformat filename(ms+packagename)\n4.0 delay\n5.WEBP or JPEG filetype\n6.EXIF(JPEG,Android 7.0+)\n\nAnd a quick screenshot tile.(Not dependent on xposed.Root needed.)\nsrc: https://github.com/ryuunoakaihitomi/Screenshot-Hookbox</string>
     <string name="save_jpg">Save to JPG</string>
     <string name="use_screencap">Use screencap command</string>
     <string name="root">I need root!!!</string>
@@ -9,5 +9,7 @@
     <string name="temp_dis">Temporarily disabled Xposed</string>
     <string name="delay_1s">Delay 1s for QSTile</string>
     <string name="xposed">When the xposed mechanism is running, it is not recommended that you use this feature.</string>
+    <string name="donate">＄Donate //捐赠</string>
+    <string name="donate_notice">Jump to the donation page</string>
 
 </resources>

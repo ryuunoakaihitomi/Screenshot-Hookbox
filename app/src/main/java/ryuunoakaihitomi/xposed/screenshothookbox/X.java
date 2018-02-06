@@ -154,7 +154,7 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                                 Log.d(TAG, "ExifInterface.setAttribute");
                                 ExifInterface exifInterface = new ExifInterface(mImageFilePath);
                                 exifInterface.setAttribute(ExifInterface.TAG_DATETIME, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(System.currentTimeMillis()));
-                                //Debug: orientation
+                                //Debug:orientation
                                 String orientation = String.valueOf(AndroidAppHelper.currentApplication().getResources().getConfiguration().orientation);
                                 Log.d(TAG, "orientation:" + orientation);
                                 exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, orientation);
@@ -165,7 +165,7 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                                 display.getRealSize(point);
                                 int w = point.x;
                                 int l = point.y;
-                                Log.d(TAG, String.format("getRealSize:%d*%d", w, l));
+                                Log.d(TAG, "getRealSize:" + w + "*" + l);
                                 exifInterface.setAttribute(ExifInterface.TAG_IMAGE_WIDTH, String.valueOf(w));
                                 exifInterface.setAttribute(ExifInterface.TAG_IMAGE_LENGTH, String.valueOf(l));
                                 //Device Info
