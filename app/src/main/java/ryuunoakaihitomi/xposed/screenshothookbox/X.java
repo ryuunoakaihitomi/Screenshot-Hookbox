@@ -155,9 +155,10 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                                 ExifInterface exifInterface = new ExifInterface(mImageFilePath);
                                 exifInterface.setAttribute(ExifInterface.TAG_DATETIME, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(System.currentTimeMillis()));
                                 //Debug:orientation
-                                String orientation = String.valueOf(AndroidAppHelper.currentApplication().getResources().getConfiguration().orientation);
-                                Log.d(TAG, "orientation:" + orientation);
-                                exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, orientation);
+                                //Bug:2 -> 3
+//                                String orientation = String.valueOf(AndroidAppHelper.currentApplication().getResources().getConfiguration().orientation);
+//                                Log.d(TAG, "orientation:" + orientation);
+//                                exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, orientation);
                                 //Debug:Width & Length
                                 WindowManager windowManager = (WindowManager) AndroidAppHelper.currentApplication().getSystemService(Context.WINDOW_SERVICE);
                                 Display display = windowManager.getDefaultDisplay();
@@ -186,7 +187,7 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
             });
             /**
              * RecentsActivity Listener
-             * (at) hide
+             * @hide
              */
             XposedHelpers.findAndHookMethod("com.android.systemui.recents.RecentsActivity", lpparam.classLoader, "onStart", new XC_MethodHook() {
                 @Override
