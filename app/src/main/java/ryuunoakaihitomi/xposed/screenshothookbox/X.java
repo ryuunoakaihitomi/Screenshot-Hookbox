@@ -202,7 +202,7 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
     }
 
     //Get foreground package name,it can work on lollipop or higher without PACKAGE_USAGE_STATS.(reflection.But it could't get the RecentsActivity from SystemUI.System permission needed)
-    @SuppressWarnings("JavaReflectionMemberAccess")
+    @SuppressWarnings({"JavaReflectionMemberAccess", "DanglingJavadoc"})
     private String getLollipopRecentTask() {
         /** @hide Process is hosting the current top activities.  Note that this covers
          * all activities that are visible to the user. */
