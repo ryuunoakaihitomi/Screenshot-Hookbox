@@ -1,8 +1,8 @@
 package ryuunoakaihitomi.xposed.screenshothookbox;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AndroidAppHelper;
-import android.app.KeyguardManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -34,38 +34,34 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
  * Created by ZQY on 2017/10/28.
  * Hooker
  */
+@SuppressLint("SimpleDateFormat")
 public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 
     static final String TAG = "Screenshot_Hooklog";
-    //RecentTasksList Status
-    static final String REC = "isRecents";
 
     //_switch will come in handy if I start to hook String.format() method.
     private static boolean _switch;
 
     @Override
-    public void initZygote(StartupParam startupParam) throws Throwable {
+    public void initZygote(StartupParam startupParam) {
         //start.
-        XposedBridge.log("#Screenshot Hookbox");
+        XposedBridge.log("//Logcat tag of \"Screenshot Hookbox\" is " + TAG);
     }
 
     @Override
-    public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
+    public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam lpparam) {
         final String app = lpparam.packageName;
-        //loading package...
-        Log.d(TAG, "handleLoadPackage:" + app);
         //Disable the security mechanism.(1)Get the first parameter.(flag)
         Class<?> vwclz = XposedHelpers.findClass("android.view.Window", lpparam.classLoader);
         XposedHelpers.findAndHookMethod(vwclz, "setFlags", int.class, int.class,
                 new XC_MethodHook() {
                     @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    protected void beforeHookedMethod(MethodHookParam param) {
                         int i = (Integer) param.args[0];
                         if (i == WindowManager.LayoutParams.FLAG_SECURE) {
                             param.args[0] = 0;
                             Log.d(TAG, "Window.setFlags(0,):" + app);
-                        } else
-                            Log.i(TAG, "Window.setFlags(args[0]):" + app + " " + i);
+                        }
                     }
 
                 }
@@ -74,7 +70,7 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
         Class<?> svclz = XposedHelpers.findClass("android.view.SurfaceView", lpparam.classLoader);
         XposedHelpers.findAndHookMethod(svclz, "setSecure", Boolean.TYPE, new XC_MethodHook() {
             @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+            protected void beforeHookedMethod(MethodHookParam param) {
                 if (param.args[0].equals(true)) {
                     param.args[0] = false;
                     Log.d(TAG, "SurfaceView.setSecure:" + app);
@@ -82,15 +78,17 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
             }
         });
         //Check xposed status.
-        if (app.equals("ryuunoakaihitomi.xposed.screenshothookbox")) {
-            XposedHelpers.findAndHookMethod("ryuunoakaihitomi.xposed.screenshothookbox.ConfigActivity", lpparam.classLoader, "isXposedRunning", XC_MethodReplacement.returnConstant(true));
+        if (app.equals(X.class.getPackage().getName())) {
+            XposedHelpers.findAndHookMethod(ConfigActivity.class, "isXposedRunning", XC_MethodReplacement.returnConstant(true));
         }
         //SystemUI is the operator.
         if (app.equals("com.android.systemui")) {
             //Mute during getting screenshot.
             XposedHelpers.findAndHookMethod(MediaActionSound.class, "play", int.class, new XC_MethodReplacement() {
                 @Override
-                protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
+                protected Object replaceHookedMethod(MethodHookParam param) {
+                    //The logcat shows that this is the earliest record.
+                    XposedBridge.log("A screenshot was taken.");
                     MediaActionSound mas = (MediaActionSound) param.thisObject;
                     mas.release();
                     Log.d(TAG, "MediaActionSound.release");
@@ -100,19 +98,18 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
             //Reformat the fileName.(Entrance)Because there's only one place is "yyyyMMdd-HHmmss" in the whole aosp-mirror/platform_frameworks_base.
             XposedBridge.hookAllConstructors(SimpleDateFormat.class, new XC_MethodHook() {
                 @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                protected void beforeHookedMethod(MethodHookParam param) {
                     if (param.args[0].equals("yyyyMMdd-HHmmss")) {
                         _switch = true;
                         Log.d(TAG, "SimpleDateFormat(\"yyyyMMdd-HHmmss\")");
-                    } else
-                        Log.d(TAG, "SimpleDateFormat(*):" + param.args[0]);
+                    }
                 }
             });
             //Reformat the fileName.(Execute)(Screenshot_time(Accurate to milliseconds)_packagename.png)
             //It will call several times in　SystemUI.
             XposedHelpers.findAndHookMethod(String.class, "format", String.class, Object[].class, new XC_MethodHook() {
                 @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                protected void afterHookedMethod(MethodHookParam param) {
                     if (_switch) {
                         _switch = false;
                         //Change the file type to WEBP or JPG.(filename)
@@ -131,7 +128,7 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
             //Change the file type to WEBP or JPG.(type)
             XposedHelpers.findAndHookMethod(Bitmap.class, "compress", Bitmap.CompressFormat.class, int.class, OutputStream.class, new XC_MethodHook() {
                 @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                protected void beforeHookedMethod(MethodHookParam param) {
                     if (!BoolConfigIO.get(ConfigActivity.JPG))
                         param.args[0] = Bitmap.CompressFormat.WEBP;
                     else
@@ -143,7 +140,7 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
             //Add EXIF in JPEG image.
             XposedHelpers.findAndHookMethod(ContentValues.class, "put", String.class, String.class, new XC_MethodHook() {
                 @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                protected void beforeHookedMethod(MethodHookParam param) {
                     if (param.args[0] == MediaStore.Images.ImageColumns.DATA) {
                         Log.d(TAG, "MediaStore.Images.ImageColumns.DATA");
                         if (BoolConfigIO.get(ConfigActivity.JPG) && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -154,11 +151,6 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                                 Log.d(TAG, "ExifInterface.setAttribute");
                                 ExifInterface exifInterface = new ExifInterface(mImageFilePath);
                                 exifInterface.setAttribute(ExifInterface.TAG_DATETIME, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(System.currentTimeMillis()));
-                                //Debug:orientation
-                                //Bug:2 -> 3
-//                                String orientation = String.valueOf(AndroidAppHelper.currentApplication().getResources().getConfiguration().orientation);
-//                                Log.d(TAG, "orientation:" + orientation);
-//                                exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, orientation);
                                 //Debug:Width & Length
                                 WindowManager windowManager = (WindowManager) AndroidAppHelper.currentApplication().getSystemService(Context.WINDOW_SERVICE);
                                 Display display = windowManager.getDefaultDisplay();
@@ -185,24 +177,6 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                     }
                 }
             });
-            /**
-             * RecentsActivity Listener
-             * @hide
-             */
-            XposedHelpers.findAndHookMethod("com.android.systemui.recents.RecentsActivity", lpparam.classLoader, "onStart", new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    BoolConfigIO.set(REC, true);
-                    Log.d(TAG, "RecentsActivity.onStart");
-                }
-            });
-            XposedHelpers.findAndHookMethod("com.android.systemui.recents.RecentsActivity", lpparam.classLoader, "onPause", new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    BoolConfigIO.set(REC, false);
-                    Log.d(TAG, "RecentsActivity.onPause");
-                }
-            });
             return;
         }
         //android get the key event.As a messager.
@@ -215,17 +189,12 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
         }
     }
 
-    //get the object on the top of the screen.(Top Activity + LockScreen + RecentTasksList)
+    //get the object on the top of the screen.(Top Activity's PackageName)
     private String getShotObject() {
         String ret = getLollipopRecentTask();
         String out;
         if (ret.isEmpty())
-            if (BoolConfigIO.get(REC))
-                out = "RecentTasksList";
-            else
-                out = "unknown";
-        else if (((KeyguardManager) AndroidAppHelper.currentApplication().getSystemService(Context.KEYGUARD_SERVICE)).inKeyguardRestrictedInputMode())
-            out = "LockScreen";
+            out = "others";
         else
             out = ret;
         Log.d(TAG, "getShotObject:" + out);
@@ -233,6 +202,7 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
     }
 
     //Get foreground package name,it can work on lollipop or higher without PACKAGE_USAGE_STATS.(reflection.But it could't get the RecentsActivity from SystemUI.System permission needed)
+    @SuppressWarnings("JavaReflectionMemberAccess")
     private String getLollipopRecentTask() {
         /** @hide Process is hosting the current top activities.  Note that this covers
          * all activities that are visible to the user. */

@@ -1,6 +1,8 @@
 package ryuunoakaihitomi.xposed.screenshothookbox;
 
+import android.content.Context;
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,28 +13,30 @@ import java.io.IOException;
  */
 
 class BoolConfigIO {
-    
-    private static String path = Environment.getExternalStorageDirectory().getPath() + "/Android/data/ryuunoakaihitomi.xposed.screenshothookbox/files/";
-
-    //if !exists
-    static {
-        SU.exec("mkdir -p " + path);
-    }
+    //The hardcode for xposed. If we can, we should not do this.
+    private static String path = Environment.getExternalStorageDirectory().getPath() + "/Android/data/ryuunoakaihitomi.xposed.screenshothookbox/files";
 
     //setter and getter.
     static void set(String key, boolean value) {
-        File file = new File(path + key);
+        File file = new File(path + "/" + key);
         if (value)
             try {
-                file.createNewFile();
+                Log.v(X.TAG, key + ",set_create_result:" + file.createNewFile());
             } catch (IOException e) {
                 e.printStackTrace();
             }
         else
-            file.delete();
+            Log.v(X.TAG, key + ",set_delete_result:" + file.delete());
     }
 
     static boolean get(String key) {
-        return new File(path + key).exists();
+        Log.v(X.TAG, "get_path:" + path);
+        return new File(path + "/" + key).exists();
+    }
+
+    @SuppressWarnings({"ConstantConditions", "ResultOfMethodCallIgnored"})
+    static void init(Context context) {
+        path = context.getExternalFilesDir(null).getPath();
+        new File(path).mkdirs();
     }
 }

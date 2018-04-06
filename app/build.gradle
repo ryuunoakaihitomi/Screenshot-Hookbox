@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 27
     defaultConfig {
         applicationId "ryuunoakaihitomi.xposed.screenshothookbox"
         minSdkVersion 23
-        targetSdkVersion 25
-        versionCode 11
-        versionName "[9]"
+        targetSdkVersion 27
+        versionCode 12
+        versionName "[10]"
     }
     buildTypes {
         release {
@@ -18,5 +18,5 @@ android {
 }
 
 dependencies {
-    provided 'de.robv.android.xposed:api:82'
+    compileOnly 'de.robv.android.xposed:api:82'
 }

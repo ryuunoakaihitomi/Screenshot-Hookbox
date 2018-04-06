@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 /**
@@ -29,6 +31,12 @@ public class ConfigActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Clear status bar's black.
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        BoolConfigIO.init(this);
         if (!SU.isRoot()) {
             Toast.makeText(getApplicationContext(), getString(R.string.root), Toast.LENGTH_LONG).show();
             finish();

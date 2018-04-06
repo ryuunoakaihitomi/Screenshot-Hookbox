@@ -24,6 +24,7 @@ public class SU extends BroadcastReceiver {
             os.write((cmd + "\n").getBytes());
             os.flush();
         } catch (Exception e) {
+            Log.wtf(X.TAG, "An error occurred.Please restart the app and allow it to use root permission.");
             e.printStackTrace();
         } finally {
             Log.d(X.TAG, "SU.exec:" + cmd);
@@ -61,6 +62,7 @@ public class SU extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         //intent.getAction() may return null.
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+            BoolConfigIO.init(context);
             if (ConfigActivity.isXposedRunning())
                 BoolConfigIO.set(ConfigActivity.CAP, false);
             exec("echo init_boot");
