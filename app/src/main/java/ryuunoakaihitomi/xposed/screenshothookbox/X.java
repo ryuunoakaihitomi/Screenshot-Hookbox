@@ -79,7 +79,7 @@ public class X implements IXposedHookLoadPackage, IXposedHookZygoteInit {
         });
         //Check xposed status.
         if (app.equals(X.class.getPackage().getName())) {
-            XposedHelpers.findAndHookMethod(ConfigActivity.class, "isXposedRunning", XC_MethodReplacement.returnConstant(true));
+            XposedHelpers.findAndHookMethod("ryuunoakaihitomi.xposed.screenshothookbox.ConfigActivity", lpparam.classLoader, "isXposedRunning", XC_MethodReplacement.returnConstant(true));
         }
         //SystemUI is the operator.
         if (app.equals("com.android.systemui")) {
